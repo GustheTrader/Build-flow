@@ -11,6 +11,7 @@ import authRoutes from './routes/auth.routes';
 import projectRoutes from './routes/projects.routes';
 import aiAgentRoutes from './routes/ai-agents.routes';
 import paymentRoutes from './routes/payment.routes';
+import financialRoutes from './routes/financial.routes';
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use(`/api/${config.apiVersion}/auth`, authRoutes);
 app.use(`/api/${config.apiVersion}/projects`, projectRoutes);
 app.use(`/api/${config.apiVersion}/ai-agents`, aiAgentRoutes);
 app.use(`/api/${config.apiVersion}/payments`, paymentRoutes);
+app.use(`/api/${config.apiVersion}`, financialRoutes);
 
 // 404 handler
 app.use((req, res) => {
