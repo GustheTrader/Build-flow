@@ -7,6 +7,10 @@ import ProjectDetail from './pages/ProjectDetail';
 import HITLApprovals from './pages/HITLApprovals';
 import AIAgentsMonitor from './pages/AIAgentsMonitor';
 import Login from './pages/Login';
+import { Invoices } from './pages/Invoices';
+import { InvoiceDetail } from './pages/InvoiceDetail';
+import { PurchaseOrders } from './pages/PurchaseOrders';
+import { Vendors } from './pages/Vendors';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -39,6 +43,12 @@ function App() {
             <Route path="/projects/:id" element={<ProjectDetail />} />
             <Route path="/hitl-approvals" element={<HITLApprovals />} />
             <Route path="/ai-agents" element={<AIAgentsMonitor />} />
+            <Route path="/invoices" element={<Invoices />} />
+            <Route path="/invoices/:id" element={<InvoiceDetail />} />
+            <Route path="/invoices/:id/edit" element={<InvoiceDetail />} />
+            <Route path="/purchase-orders" element={<PurchaseOrders />} />
+            <Route path="/purchase-orders/:id" element={<InvoiceDetail />} />
+            <Route path="/vendors" element={<Vendors />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
