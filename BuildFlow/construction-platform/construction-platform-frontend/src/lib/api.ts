@@ -131,3 +131,45 @@ export const payments = {
 export const dashboard = {
   getMetrics: () => fetchAPI('/dashboard'),
 };
+
+// ============================================================================
+// FINANCIAL MANAGEMENT API
+// ============================================================================
+
+export const invoices = {
+  list: (params?: any) => fetchAPI(`/invoices${params ? `?${new URLSearchParams(params)}` : ''}`),
+  get: (id: string) => fetchAPI(`/invoices/${id}`),
+  create: (data: any) => fetchAPI('/invoices', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) => fetchAPI(`/invoices/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: string) => fetchAPI(`/invoices/${id}`, { method: 'DELETE' }),
+  send: (id: string) => fetchAPI(`/invoices/${id}/send`, { method: 'POST' }),
+  getStats: (projectId?: string) => fetchAPI(`/invoices/stats/summary${projectId ? `?projectId=${projectId}` : ''}`),
+};
+
+export const purchaseOrders = {
+  list: (params?: any) => fetchAPI(`/purchase-orders${params ? `?${new URLSearchParams(params)}` : ''}`),
+  get: (id: string) => fetchAPI(`/purchase-orders/${id}`),
+  create: (data: any) => fetchAPI('/purchase-orders', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) => fetchAPI(`/purchase-orders/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: string) => fetchAPI(`/purchase-orders/${id}`, { method: 'DELETE' }),
+  send: (id: string) => fetchAPI(`/purchase-orders/${id}/send`, { method: 'POST' }),
+  receiveItems: (id: string, data: any) => fetchAPI(`/purchase-orders/${id}/receive`, { method: 'POST', body: JSON.stringify(data) }),
+  getStats: (projectId?: string) => fetchAPI(`/purchase-orders/stats/summary${projectId ? `?projectId=${projectId}` : ''}`),
+};
+
+export const vendors = {
+  list: (params?: any) => fetchAPI(`/vendors${params ? `?${new URLSearchParams(params)}` : ''}`),
+  get: (id: string) => fetchAPI(`/vendors/${id}`),
+  create: (data: any) => fetchAPI('/vendors', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) => fetchAPI(`/vendors/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: string) => fetchAPI(`/vendors/${id}`, { method: 'DELETE' }),
+  getCategories: () => fetchAPI('/vendors/categories/list'),
+};
+
+export const financialPayments = {
+  list: (params?: any) => fetchAPI(`/payments${params ? `?${new URLSearchParams(params)}` : ''}`),
+  get: (id: string) => fetchAPI(`/payments/${id}`),
+  create: (data: any) => fetchAPI('/payments', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id: string) => fetchAPI(`/payments/${id}`, { method: 'DELETE' }),
+  getStats: (projectId?: string) => fetchAPI(`/payments/stats/summary${projectId ? `?projectId=${projectId}` : ''}`),
+};
