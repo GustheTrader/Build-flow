@@ -10,8 +10,9 @@ import { chromaService } from './config/chroma';
 import authRoutes from './routes/auth.routes';
 import projectRoutes from './routes/projects.routes';
 import aiAgentRoutes from './routes/ai-agents.routes';
-import paymentRoutes from './routes/payment.routes';
 import financialRoutes from './routes/financial.routes';
+import builderRoutes from './routes/builder.routes';
+import portalRoutes from './routes/portal.routes';
 
 const app = express();
 
@@ -46,7 +47,8 @@ app.get('/health', (req, res) => {
 app.use(`/api/${config.apiVersion}/auth`, authRoutes);
 app.use(`/api/${config.apiVersion}/projects`, projectRoutes);
 app.use(`/api/${config.apiVersion}/ai-agents`, aiAgentRoutes);
-app.use(`/api/${config.apiVersion}/payments`, paymentRoutes);
+app.use(`/api/${config.apiVersion}/portal`, portalRoutes);
+app.use(`/api/${config.apiVersion}`, builderRoutes);
 app.use(`/api/${config.apiVersion}`, financialRoutes);
 
 // 404 handler

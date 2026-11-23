@@ -28,7 +28,7 @@ export class AgentOrchestrator {
       new LangGraphAgent(),
       new LangSmithAgent(),
       new ValidationAgent(),
-      MinimaxAgent(),
+      new MinimaxAgent(),
       new MemoryAgent(),
       new MLPipelineAgent(),
       new GraphDBAgent(),
