@@ -24,6 +24,8 @@ export enum UserRole {
 
 export interface Project {
   id: string;
+  /** Human job number, e.g. JOB-1001 (set on create; older jobs get one the first time they are read). */
+  number?: string;
   name: string;
   description: string;
   status: ProjectStatus;

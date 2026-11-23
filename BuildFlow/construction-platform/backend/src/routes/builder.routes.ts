@@ -8,7 +8,7 @@ import * as B from '../services/builder.service';
  */
 const router = Router();
 // Only this router's own paths require sign-in, so unknown /api/v1 paths still fall through to a 404.
-router.use(/^\/(projects\/[^/]+\/(schedule|daily-logs|change-orders|contract|selections|portal-access)|schedule|daily-logs|change-orders|selections|leads|estimates|portal-access)(\/|$)/, authenticate);
+router.use(/^\/(projects\/[^/]+\/(schedule|daily-logs|change-orders|contract|selections|portal-access)|schedule|daily-logs|change-orders|selections|leads|estimates|portal-access|jobs)(\/|$)/, authenticate);
 
 type H = (req: AuthRequest, res: Response) => Promise<unknown>;
 const h = (fn: H) => (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -18,6 +18,10 @@ const h = (fn: H) => (req: AuthRequest, res: Response, next: NextFunction) => {
   });
 };
 const who = (req: AuthRequest) => String(req.headers['x-actor'] ?? '').slice(0, 120) || req.user?.email || 'unknown';
+
+// jobs at a glance: by number (JOB-1001, 1001) or id
+router.get('/jobs/by-number/:number', h(async (req) => B.jobByNumber(req.params.number)));
+router.get('/jobs/:id/summary', h(async (req) => B.jobSummary(req.params.id)));
 
 // schedule
 router.get('/projects/:pid/schedule', h(async (req) => ({ items: await B.listSchedule(req.params.pid) })));

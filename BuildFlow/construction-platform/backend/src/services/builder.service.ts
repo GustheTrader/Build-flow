@@ -43,6 +43,37 @@ async function must<T>(p: Promise<T | null>, what: string): Promise<T> {
   return r;
 }
 
+// ---------- job summary (by number) ----------
+
+/** One job at a glance, for RevOpt and the bots: contract, schedule progress, what's next, what's waiting. */
+export async function jobSummary(projectId: string) {
+  const p = await mustProject(projectId);
+  const [sched, logs, cos, sels] = await Promise.all([repos.schedule.list(projectId), repos.logs.list(projectId), repos.changeOrders.list(projectId), repos.selections.list(projectId)]);
+  const t = today();
+  const progress = sched.length ? Math.round(sched.reduce((s, i) => s + (i.status === 'complete' ? 100 : i.progress), 0) / sched.length) : 0;
+  const lastLog = logs.sort((a, b) => b.date.localeCompare(a.date))[0];
+  return {
+    job: { id: p.id, number: p.number, name: p.name, client: p.clientName, status: p.status, startDate: p.startDate, endDate: p.endDate },
+    contract: contractSummary(Number(p.budget) || 0, cos),
+    schedule: {
+      items: sched.length, complete: sched.filter((i) => i.status === 'complete').length, progress,
+      late: sched.filter((i) => i.status !== 'complete' && i.endDate < t).map((i) => ({ id: i.id, title: i.title, endDate: i.endDate })),
+      next: sched.filter((i) => i.status !== 'complete').sort((a, b) => a.startDate.localeCompare(b.startDate)).slice(0, 3).map((i) => ({ id: i.id, title: i.title, startDate: i.startDate, endDate: i.endDate, status: i.status })),
+    },
+    waitingOnClient: {
+      changeOrders: cos.filter((c) => c.status === 'pending_client').map((c) => ({ id: c.id, number: c.number, title: c.title, total: changeOrderTotals(c).price })),
+      selections: sels.filter((x) => !x.chosenOptionId).map((x) => ({ id: x.id, title: x.title, dueDate: x.dueDate })),
+    },
+    lastDailyLog: lastLog ? { date: lastLog.date, author: lastLog.author, workPerformed: lastLog.workPerformed.slice(0, 500) } : null,
+  };
+}
+
+export async function jobByNumber(raw: string) {
+  const p = await projects.getProjectByNumber(raw);
+  if (!p) throw new NotFound(`No job ${String(raw).slice(0, 30)} in Build-flow.`);
+  return jobSummary(p.id);
+}
+
 // ---------- schedule ----------
 
 const withDuration = (i: ScheduleItem) => ({ ...i, durationDays: durationDays(i) });

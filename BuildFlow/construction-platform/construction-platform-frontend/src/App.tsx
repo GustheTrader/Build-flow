@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
+import AppShell from './components/AppShell';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
 import HITLApprovals from './pages/HITLApprovals';
@@ -20,7 +20,8 @@ const EMBEDDED = import.meta.env.VITE_EMBEDDED === '1';
 const BASENAME = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined;
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(EMBEDDED);
+  // Read the saved sign-in before the first render, so a direct link to a page is not bounced to login and back.
+  const [isAuthenticated, setIsAuthenticated] = useState(() => { try { return EMBEDDED || !!localStorage.getItem('auth_token'); } catch { return EMBEDDED; } });
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
@@ -49,10 +50,7 @@ function App() {
 
   return (
     <Router basename={BASENAME}>
-      <div className="min-h-screen bg-gray-50">
-        <Navbar onLogout={() => setIsAuthenticated(false)} />
-        
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <AppShell embedded={EMBEDDED} onLogout={() => setIsAuthenticated(false)}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/projects" element={<Projects />} />
@@ -69,8 +67,7 @@ function App() {
             <Route path="/vendors" element={<Vendors />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </main>
-      </div>
+      </AppShell>
     </Router>
   );
 }

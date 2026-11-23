@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { money, portal, shortDate } from '../../lib/builder-api';
 import { btn, btn2, Card, Empty, ErrorText, errMsg, input, Pill } from './ui';
+import { BRAND } from '../../brand';
 
 /** The homeowner's view, from a private link: progress, shared photos/logs, change orders to sign, selections to make. */
 export default function Portal() {
@@ -16,7 +17,7 @@ export default function Portal() {
   const pending = d.changeOrders.filter((c: any) => c.status === 'pending_client');
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white"><div className="mx-auto max-w-4xl px-4 py-4"><div className="text-xs text-gray-500">Hi {d.client.name}</div><h1 className="text-xl font-bold text-gray-900">{d.job.name}</h1></div></header>
+      <header className="border-b border-gray-200 bg-white"><div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4"><div><div className="label-mono">Hi {d.client.name}</div><h1 className="mt-1 text-3xl text-gray-900">{d.job.name}</h1></div><a href={BRAND.website} target="_blank" rel="noreferrer"><img src={BRAND.logoUrl} alt={BRAND.name} className="h-8 w-auto dark:invert" /></a></div></header>
       <main className="mx-auto max-w-4xl space-y-4 px-4 py-6">
         <ErrorText error={error} />
         <div className="grid gap-3 sm:grid-cols-3">
@@ -70,6 +71,7 @@ export default function Portal() {
             ))}
           </Card>
         )}
+      <footer className="pt-6 text-center text-xs text-gray-500">{BRAND.name} · {BRAND.region} · <a className="hover:text-gray-800" href={`tel:${BRAND.phone.replace(/\D/g, '')}`}>{BRAND.phone}</a></footer>
       </main>
     </div>
   );

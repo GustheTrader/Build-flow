@@ -19,7 +19,8 @@ import portalRoutes from './routes/portal.routes';
 const app = express();
 
 // Middleware
-app.use(helmet());
+// Images may come from https (the company logo, site photos linked in daily logs); everything else stays strict.
+app.use(helmet({ contentSecurityPolicy: { useDefaults: true, directives: { 'img-src': ["'self'", 'data:', 'https:'] } } }));
 app.use(cors({ origin: config.cors.origin, credentials: true }));
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));

@@ -16,6 +16,9 @@ eid=$(echo "$est" | j 'd["estimate"]["id"]')
 acc=$(call POST /estimates/$eid/status -d '{"status":"accepted"}'); pid=$(echo "$acc" | j 'd["estimate"]["projectId"]')
 [ -n "$pid" ] && [ "$pid" != "None" ] && pass "accepting the estimate made a job"
 call GET /leads/$lead | j 'd["lead"]["stage"]' | grep -q won && pass "lead is won"
+num=$(call GET /jobs/$pid/summary | j 'd["job"]["number"]'); echo "$num" | grep -qE '^JOB-[0-9]+$' && pass "the job has a number ($num)"
+digits=${num#JOB-}; call GET "/jobs/by-number/job%20$digits" | j 'd["job"]["id"]' | grep -q "$pid" && pass "the job is found by number, typed loosely"
+call GET /jobs/by-number/JOB-999999 | j 'd.get("error","")' | grep -q "No job" && pass "an unknown job number is a clear error"
 
 a=$(call POST /projects/$pid/schedule -d '{"title":"Demo","startDate":"2026-12-01","endDate":"2026-12-02"}' | j 'd["item"]["id"]')
 b=$(call POST /projects/$pid/schedule -d "{\"title\":\"Cabinets\",\"startDate\":\"2026-12-01\",\"endDate\":\"2026-12-03\",\"predecessorIds\":[\"$a\"]}" | j 'd["item"]["startDate"]+" "+d["item"]["endDate"]')
@@ -37,6 +40,7 @@ ov=$(curl -s "$BASE/portal/$tok"); echo "$ov" | j 'len(d["changeOrders"])==1 and
 curl -s -X POST -H 'content-type: application/json' "$BASE/portal/$tok/change-orders/$coid/decision" -d '{"decision":"approve","signatureName":"Pat Smith"}' | j 'd["changeOrder"]["status"]' | grep -q approved && pass "client approved and signed the change order"
 curl -s -X POST -H 'content-type: application/json' "$BASE/portal/$tok/selections/${sel% *}/choose" -d "{\"optionId\":\"${sel#* }\"}" | j 'd["selection"]["overage"]' | grep -q 500 && pass "client chose quartz: 500 over allowance"
 call GET /projects/$pid/contract | j 'd["revised"]==13392+1200' | grep -q True && pass "revised contract = estimate + approved change order"
+call GET /jobs/by-number/$num | j 'd["contract"]["revised"]==14592 and len(d["schedule"]["next"])==2 and d["lastDailyLog"]["date"]=="2026-12-01"' | grep -q True && pass "job summary by number: contract, next schedule items, last log"
 curl -s -o /dev/null -w '%{http_code}' "$BASE/portal/not-a-real-token-xxxxxxxxxx" | grep -q 404 && pass "unknown portal link is refused"
 curl -s -o /dev/null -w '%{http_code}' "$BASE/leads" | grep -q 401 && pass "API needs a key or sign-in"
 echo "done"

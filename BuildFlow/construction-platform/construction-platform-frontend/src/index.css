@@ -1,38 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Instrument+Serif:ital@0;1&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Whitis Contracting theme for Build-flow. Colors are RGB triplets so Tailwind's opacity modifiers work.
+ * brand = Whitis maroon (#6d1f2c) with blush tints; gray = warm neutrals. `.dark` is the default (set on <html>).
+ */
 @layer base {
   :root {
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%
+    --radius: 0.375rem;
+    --surface: 255 255 255;
+    --gray-50: 247 245 242;  --gray-100: 239 236 232; --gray-200: 226 221 215; --gray-300: 207 200 192; --gray-400: 163 155 147;
+    --gray-500: 122 115 108; --gray-600: 94 88 82;    --gray-700: 71 65 60;     --gray-800: 46 42 39;     --gray-900: 26 23 22;
+    --brand-50: 250 241 243; --brand-100: 243 223 227; --brand-200: 232 195 202; --brand-300: 214 156 167; --brand-400: 186 104 120;
+    --brand-500: 143 42 58;  --brand-600: 109 31 44;   --brand-700: 90 24 36;    --brand-800: 74 20 30;    --brand-900: 51 13 20;
+    --green-50: 240 249 243; --green-100: 220 242 228; --green-200: 187 228 201; --green-300: 134 205 159; --green-400: 76 175 113;
+    --green-500: 40 145 82;  --green-600: 30 120 67;   --green-700: 24 98 55;    --green-800: 22 78 45;    --green-900: 15 52 30;
+    --red-50: 253 242 241;   --red-100: 250 224 221;   --red-200: 244 190 184;   --red-300: 234 142 132;   --red-400: 221 92 80;
+    --red-500: 200 58 46;    --red-600: 172 44 34;     --red-700: 140 36 28;     --red-800: 112 30 24;     --red-900: 74 20 16;
+    --amber-50: 253 248 236; --amber-100: 250 238 207; --amber-200: 244 221 157; --amber-300: 235 196 98;  --amber-400: 222 168 52;
+    --amber-500: 196 136 26; --amber-600: 160 106 18;  --amber-700: 128 82 16;   --amber-800: 100 64 14;   --amber-900: 66 42 10;
+    --grid-line: 26 23 22;
   }
-
   .dark {
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%
+    --surface: 19 19 21;
+    --gray-50: 11 11 12;     --gray-100: 24 24 27;     --gray-200: 38 38 43;     --gray-300: 54 54 60;     --gray-400: 104 104 112;
+    --gray-500: 142 142 150; --gray-600: 170 170 177;  --gray-700: 198 198 204;  --gray-800: 222 222 226;  --gray-900: 243 241 236;
+    --brand-50: 36 16 20;    --brand-100: 52 22 28;    --brand-200: 82 32 42;    --brand-300: 122 52 66;   --brand-400: 166 78 94;
+    --brand-500: 201 135 147; --brand-600: 168 64 82;  --brand-700: 214 150 162; --brand-800: 240 211 216; --brand-900: 250 236 239;
+    --green-50: 12 28 19;    --green-100: 16 40 26;    --green-200: 24 64 40;    --green-300: 36 96 60;    --green-400: 60 140 90;
+    --green-500: 84 178 118; --green-600: 110 198 140; --green-700: 140 214 164; --green-800: 168 228 188; --green-900: 206 242 218;
+    --red-50: 34 14 13;      --red-100: 48 18 16;      --red-200: 80 28 24;      --red-300: 120 40 34;     --red-400: 170 60 50;
+    --red-500: 220 92 80;    --red-600: 236 120 108;   --red-700: 244 150 140;   --red-800: 248 178 170;   --red-900: 252 214 210;
+    --amber-50: 32 24 10;    --amber-100: 46 34 12;    --amber-200: 76 56 18;    --amber-300: 116 86 26;   --amber-400: 168 124 36;
+    --amber-500: 214 160 52; --amber-600: 230 182 78;  --amber-700: 240 200 108; --amber-800: 246 216 140; --amber-900: 250 234 190;
+    --grid-line: 243 241 236;
   }
+
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  body {
+    @apply bg-gray-50 font-sans text-gray-900 antialiased;
+    /* A faint drafting grid, like a site plan. */
+    background-image: linear-gradient(rgb(var(--grid-line) / 0.035) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--grid-line) / 0.035) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  h1 { @apply font-serif font-normal tracking-tight; letter-spacing: -0.015em; font-size: 2.6rem; line-height: 1.08; }
+  @media (max-width: 640px) { h1 { font-size: 2rem; } }
+  ::selection { background: rgb(var(--brand-500) / 0.35); }
 }
 
+/* Existing pages paint cards with bg-white; in the dark theme that is the dark surface. */
+.dark .bg-white { background-color: rgb(var(--surface)); }
+.dark .hover\:bg-white:hover { background-color: rgb(var(--surface)); }
+.bg-white\/80 { background-color: rgb(var(--surface) / 0.85); }
+.dark .shadow, .dark .shadow-sm, .dark .shadow-md, .dark .shadow-lg { box-shadow: 0 0 0 1px rgb(var(--gray-200)); }
+.dark .bg-black.bg-opacity-50, .dark .bg-black\/50 { background-color: rgb(0 0 0 / 0.65); }
+.dark input, .dark select, .dark textarea { background-color: rgb(var(--gray-100)); color: rgb(var(--gray-900)); }
+.dark input::placeholder, .dark textarea::placeholder { color: rgb(var(--gray-400)); }
 
-
-img {
-  object-position: top;
+@layer components {
+  .label-mono { @apply font-mono text-[11px] uppercase tracking-[0.14em] text-gray-500; }
+  .num { @apply font-mono tabular-nums; letter-spacing: -0.01em; }
 }
 
-.fixed {
-  position: fixed;
-}
+img { object-position: top; }
+.fixed { position: fixed; }
