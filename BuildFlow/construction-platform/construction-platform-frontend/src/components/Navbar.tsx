@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Building2, LayoutDashboard, FolderKanban, CheckSquare, Activity, LogOut, DollarSign, FileText, ShoppingCart, Users } from 'lucide-react';
+import { Building2, LayoutDashboard, FolderKanban, CheckSquare, Activity, LogOut, DollarSign, FileText, ShoppingCart, Users, Target, Calculator } from 'lucide-react';
 import { auth } from '../lib/api';
 
 interface NavbarProps {
@@ -26,7 +26,9 @@ export default function Navbar({ onLogout }: NavbarProps) {
             
             <div className="hidden sm:ml-8 sm:flex sm:space-x-8">
               <NavLink to="/" icon={<LayoutDashboard className="h-5 w-5" />} text="Dashboard" />
-              <NavLink to="/projects" icon={<FolderKanban className="h-5 w-5" />} text="Projects" />
+              <NavLink to="/leads" icon={<Target className="h-5 w-5" />} text="Leads" />
+              <NavLink to="/estimates" icon={<Calculator className="h-5 w-5" />} text="Estimates" />
+              <NavLink to="/projects" icon={<FolderKanban className="h-5 w-5" />} text="Jobs" />
               <NavLink to="/invoices" icon={<FileText className="h-5 w-5" />} text="Invoices" />
               <NavLink to="/purchase-orders" icon={<ShoppingCart className="h-5 w-5" />} text="Purchase Orders" />
               <NavLink to="/vendors" icon={<Users className="h-5 w-5" />} text="Vendors" />

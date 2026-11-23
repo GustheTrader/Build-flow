@@ -11,7 +11,7 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
-const fetchAPI = async (endpoint: string, options: RequestInit = {}) => {
+export const fetchAPI = async (endpoint: string, options: RequestInit = {}) => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...options.headers,

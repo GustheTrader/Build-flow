@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import path from 'path';
+import fs from 'fs';
 import { config } from './config';
 import { redisClient } from './config/redis';
 import { chromaService } from './config/chroma';
@@ -51,6 +53,13 @@ app.use(`/api/${config.apiVersion}/portal`, portalRoutes);
 app.use(`/api/${config.apiVersion}`, builderRoutes);
 app.use(`/api/${config.apiVersion}`, financialRoutes);
 
+// The web app, when FRONTEND_DIST points at a build (Bot HQ serves it under /buildflow/ and strips that prefix).
+const frontendDist = process.env.FRONTEND_DIST;
+if (frontendDist && fs.existsSync(path.join(frontendDist, 'index.html'))) {
+  app.use(express.static(frontendDist, { index: false, maxAge: '1h' }));
+  app.get(/^\/(?!api\/).*/, (_req, res) => res.sendFile(path.join(frontendDist, 'index.html')));
+}
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
@@ -81,7 +90,7 @@ async function startServer() {
     }
 
     // Start HTTP server
-    app.listen(config.port, () => {
+    app.listen(config.port, process.env.HOST || '0.0.0.0', () => {
       console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║   AI-Augmented Construction Management Platform           ║
