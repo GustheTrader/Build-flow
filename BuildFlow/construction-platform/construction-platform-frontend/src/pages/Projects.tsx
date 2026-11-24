@@ -55,7 +55,7 @@ export default function Projects() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
+          <h1 className="text-3xl text-gray-900">Jobs</h1>
           <p className="mt-2 text-gray-600">Manage your construction projects</p>
         </div>
         <button
@@ -136,7 +136,7 @@ function ProjectCard({ project }: { project: any }) {
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">{project.name}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{project.number && <span className="num mr-2 text-xs font-normal text-gray-500">{project.number}</span>}{project.name}</h3>
           <p className="text-sm text-gray-500 mt-1">{project.clientName}</p>
         </div>
         <StatusBadge status={project.status} />

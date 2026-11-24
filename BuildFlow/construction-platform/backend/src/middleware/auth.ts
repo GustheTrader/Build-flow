@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { config } from '../config';
 import { UserRole } from '../models/types';
 
@@ -11,8 +12,21 @@ export interface AuthRequest extends Request {
   };
 }
 
+/** A service key (BUILDFLOW_API_KEY) lets Bot HQ's bots call the API as an admin; x-actor names the bot. */
+function serviceKeyOk(given: string | undefined): boolean {
+  const want = process.env.BUILDFLOW_API_KEY ?? '';
+  if (!want || !given) return false;
+  const a = Buffer.from(crypto.createHash('sha256').update(given).digest('hex'));
+  const b = Buffer.from(crypto.createHash('sha256').update(want).digest('hex'));
+  return crypto.timingSafeEqual(a, b);
+}
+
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
+    if (serviceKeyOk(req.headers['x-api-key'] as string | undefined)) {
+      req.user = { id: 'service:bot-hq', email: String(req.headers['x-actor'] ?? 'bot-hq').slice(0, 120), role: UserRole.ADMIN };
+      return next();
+    }
     const token = req.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {

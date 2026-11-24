@@ -1,6 +1,7 @@
 import { redisClient } from '../config/redis';
 import { Project, ProjectStatus, Task, TaskStatus, ProjectMetrics } from '../models/types';
 import { v4 as uuidv4 } from 'uuid';
+import { JOB_SEQ_KEY, JOB_SEQ_START, formatJobNumber, jobNumberKey, normalizeJobNumber } from '../lib/job-number';
 import { agentOrchestrator } from '../agents/orchestrator';
 import { AgentType } from '../models/types';
 
@@ -26,6 +27,8 @@ export class ProjectService {
     };
 
     const redis = redisClient.getClient();
+    project.number = await this.nextNumber();
+    await redis.set(jobNumberKey(project.number), project.id);
     await redis.hSet(`project:${project.id}`, this.serializeProject(project));
     await redis.sAdd('projects:all', project.id);
     await redis.sAdd(`projects:status:${project.status}`, project.id);
@@ -48,7 +51,28 @@ export class ProjectService {
       return null;
     }
 
-    return this.deserializeProject(data);
+    const project = this.deserializeProject(data);
+    if (!project.number) {
+      // Jobs made before job numbers existed get one the first time they are read.
+      project.number = await this.nextNumber();
+      await redis.hSet(`project:${projectId}`, 'number', project.number);
+      await redis.set(jobNumberKey(project.number), projectId);
+    }
+    return project;
+  }
+
+  /** A job by its number, typed loosely ("1001", "JOB-1001", "job #1001"). */
+  async getProjectByNumber(raw: unknown): Promise<Project | null> {
+    const number = normalizeJobNumber(raw);
+    if (!number) return null;
+    const id = await redisClient.getClient().get(jobNumberKey(number));
+    return id ? this.getProject(id) : null;
+  }
+
+  private async nextNumber(): Promise<string> {
+    const redis = redisClient.getClient();
+    await redis.set(JOB_SEQ_KEY, String(JOB_SEQ_START), { NX: true });
+    return formatJobNumber(await redis.incr(JOB_SEQ_KEY));
   }
 
   async updateProject(projectId: string, updates: Partial<Project>): Promise<Project> {
@@ -200,10 +224,11 @@ export class ProjectService {
   private serializeProject(project: Project): Record<string, string> {
     return {
       id: project.id,
+      number: project.number ?? '',
       name: project.name,
       description: project.description,
       status: project.status,
-      type: project.type,
+      type: project.type ?? '',
       clientId: project.clientId,
       clientName: project.clientName,
       projectManager: project.projectManager,
@@ -211,7 +236,7 @@ export class ProjectService {
       endDate: project.endDate.toISOString(),
       budget: project.budget.toString(),
       actualCost: project.actualCost.toString(),
-      location: JSON.stringify(project.location),
+      location: JSON.stringify(project.location ?? {}),
       tags: JSON.stringify(project.tags),
       createdAt: project.createdAt.toISOString(),
       updatedAt: project.updatedAt.toISOString(),
@@ -221,6 +246,7 @@ export class ProjectService {
   private deserializeProject(data: Record<string, string>): Project {
     return {
       id: data.id,
+      number: data.number || undefined,
       name: data.name,
       description: data.description,
       status: data.status as ProjectStatus,

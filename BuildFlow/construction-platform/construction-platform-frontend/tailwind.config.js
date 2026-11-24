@@ -1,3 +1,7 @@
+
+const v = (name) => `rgb(var(--${name}) / <alpha-value>)`;
+const scale = (name, steps) => Object.fromEntries(steps.map((n) => [n, v(`${name}-${n}`)]));
+const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 /** @type {import('tailwindcss').Config} */
 module.exports = {
 	darkMode: ['class'],
@@ -14,6 +18,27 @@ module.exports = {
 			screens: {
 				'2xl': '1400px',
 			},
+		},
+		colors: {
+			transparent: 'transparent',
+			current: 'currentColor',
+			black: '#000',
+			white: '#fff',
+			// The Whitis theme: every page's gray/blue/status classes follow these variables (src/index.css), light and dark.
+			gray: scale('gray', STEPS),
+			blue: scale('brand', STEPS),
+			indigo: scale('brand', STEPS),
+			green: scale('green', STEPS),
+			red: scale('red', STEPS),
+			amber: scale('amber', STEPS),
+			yellow: scale('amber', STEPS),
+			orange: scale('amber', STEPS),
+			purple: scale('brand', STEPS),
+		},
+		fontFamily: {
+			sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+			mono: ['"Geist Mono"', 'ui-monospace', 'monospace'],
+			serif: ['"Instrument Serif"', 'Georgia', 'serif'],
 		},
 		extend: {
 			colors: {

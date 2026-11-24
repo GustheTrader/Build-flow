@@ -26,7 +26,7 @@ export default function ProjectDetail() {
         projects.get(projectId),
         projects.getMetrics(projectId),
         projects.getTasks(projectId),
-        payments.getProjectInvoices(projectId),
+        payments.getProjectInvoices(projectId).catch(() => ({ data: [] })),
       ]);
 
       setProject(projectRes.data);

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Building2 } from 'lucide-react';
+import { BRAND } from '../brand';
 import { auth } from '../lib/api';
 
 export default function Login({ onLogin }: { onLogin: () => void }) {
@@ -33,9 +33,9 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
       <div className="max-w-md w-full bg-white rounded-lg shadow-2xl p-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
-            <Building2 className="h-12 w-12 text-blue-600" />
+            <img src={BRAND.logoUrl} alt={BRAND.name} className="h-12 w-auto dark:invert" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">BuildFlow AI</h1>
+          <h1 className="text-3xl text-gray-900">{BRAND.product}</h1>
           <p className="text-gray-600 mt-2">AI-Augmented Construction Management</p>
         </div>
 
