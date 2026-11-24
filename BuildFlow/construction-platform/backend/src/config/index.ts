@@ -3,6 +3,11 @@ import path from 'path';
 
 dotenv.config();
 
+// A signing key that is public (it is in the source) would let anyone make themselves an admin. In production it must be set.
+if ((process.env.NODE_ENV || 'development') === 'production' && (process.env.JWT_SECRET ?? '').length < 16) {
+  throw new Error('JWT_SECRET must be set (16+ characters) when NODE_ENV=production');
+}
+
 export const config = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '3000', 10),

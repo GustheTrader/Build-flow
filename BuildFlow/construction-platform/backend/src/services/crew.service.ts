@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import { Repo, NotFound, BadRequest, Unauthorized, Forbidden, TooMany } from '../lib/repo';
+import { throttle } from '../lib/throttle';
 import type { CrewMember, CrewRole, PunchItem } from '../models/builder.types';
 import { ProjectService } from './project.service';
 import * as B from './builder.service';
@@ -50,16 +51,6 @@ export async function crewFromToken(token: string | undefined): Promise<CrewMemb
   const c = await crewRepo.get(String(p.id));
   if (!c || !c.active || c.tokenVersion !== p.v) throw new Unauthorized('Your access was turned off. Ask the office.');
   return c;
-}
-
-// A small in-memory brake on guessing: per email and overall.
-const tries = new Map<string, { at: number; n: number }>();
-function throttle(key: string, max: number, windowMs: number) {
-  const t = Date.now();
-  const e = tries.get(key);
-  if (!e || t - e.at > windowMs) tries.set(key, { at: t, n: 1 });
-  else if (++e.n > max) throw new TooMany('Too many tries. Wait a few minutes and try again.');
-  if (tries.size > 5000) tries.clear();
 }
 
 // ---------- accounts (office) ----------
