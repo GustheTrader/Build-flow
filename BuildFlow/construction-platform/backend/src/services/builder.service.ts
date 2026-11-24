@@ -106,7 +106,7 @@ export async function createScheduleItem(projectId: string, b: any) {
   return { item: withDuration((await repos.schedule.get(item.id))!), moved };
 }
 
-export async function updateScheduleItem(id: string, b: any) {
+export async function updateScheduleItem(id: string, b: any, actor?: string) {
   const cur = await must(repos.schedule.get(id), 'Schedule item');
   const patch: Partial<ScheduleItem> = {};
   if (b.title !== undefined) patch.title = str(b.title, 'title', 200);
@@ -127,6 +127,7 @@ export async function updateScheduleItem(id: string, b: any) {
   // Moving the start keeps the duration unless an end date was given too.
   if (patch.startDate && !patch.endDate) patch.endDate = new Date(Date.parse(`${patch.startDate}T00:00:00Z`) + (durationDays(cur) - 1) * 86_400_000).toISOString().slice(0, 10);
   if ((patch.endDate ?? cur.endDate) < (patch.startDate ?? cur.startDate)) throw new BadRequest('endDate is before startDate.');
+  if (actor) patch.updatedBy = actor;
   await repos.schedule.update(id, patch);
   const moved = await applyReschedule(cur.projectId);
   return { item: withDuration((await repos.schedule.get(id))!), moved };
@@ -142,6 +143,12 @@ export async function removeScheduleItem(id: string) {
 
 // ---------- daily logs ----------
 
+/** Photo links: https addresses, or our own uploads (/media/<32 hex>.jpg). */
+export const PHOTO_URL = /^(https?:\/\/\S+|\/media\/[a-f0-9]{32}\.jpg)$/;
+export function photoList(v: unknown): { url: string }[] {
+  return Array.isArray(v) ? v.slice(0, 50).filter((p: any) => PHOTO_URL.test(String(p?.url ?? ''))).map((p: any) => ({ url: String(p.url) })) : [];
+}
+
 function logFields(b: any): Partial<DailyLog> {
   const out: Partial<DailyLog> = {};
   if (b.date !== undefined) out.date = checkDate(b.date, 'date');
@@ -150,7 +157,7 @@ function logFields(b: any): Partial<DailyLog> {
   if (b.crew !== undefined) out.crew = Array.isArray(b.crew) ? b.crew.slice(0, 100).map((c: any) => ({ name: str(c?.name, 'crew name', 120), company: optStr(c?.company, 120), hours: c?.hours === undefined ? undefined : num(c.hours) })) : [];
   if (b.delays !== undefined) out.delays = optStr(b.delays);
   if (b.safety !== undefined) out.safety = optStr(b.safety);
-  if (b.photos !== undefined) out.photos = Array.isArray(b.photos) ? b.photos.slice(0, 50).filter((p: any) => /^https?:\/\//.test(String(p?.url ?? ''))).map((p: any) => ({ url: String(p.url), caption: optStr(p.caption, 300) })) : [];
+  if (b.photos !== undefined) out.photos = photoList(b.photos).map((p) => ({ url: p.url, caption: optStr((b.photos as any[]).find((x) => x?.url === p.url)?.caption, 300) }));
   if (b.visibleToClient !== undefined) out.visibleToClient = !!b.visibleToClient;
   return out;
 }
@@ -159,10 +166,10 @@ export async function listLogs(projectId: string) {
   await mustProject(projectId);
   return (await repos.logs.list(projectId)).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
 }
-export async function createLog(projectId: string, b: any, author: string) {
+export async function createLog(projectId: string, b: any, author: string, id?: string) {
   await mustProject(projectId);
   const f = logFields({ date: today(), visibleToClient: false, crew: [], photos: [], ...b });
-  return repos.logs.create({ projectId, author, date: f.date!, workPerformed: f.workPerformed ?? str(b.workPerformed, 'workPerformed'), weather: f.weather, crew: f.crew ?? [], delays: f.delays, safety: f.safety, photos: f.photos ?? [], visibleToClient: f.visibleToClient ?? false });
+  return repos.logs.create({ projectId, author, date: f.date!, workPerformed: f.workPerformed ?? str(b.workPerformed, 'workPerformed'), weather: f.weather, crew: f.crew ?? [], delays: f.delays, safety: f.safety, photos: f.photos ?? [], visibleToClient: f.visibleToClient ?? false }, id);
 }
 export async function updateLog(id: string, b: any) { await must(repos.logs.get(id), 'Daily log'); return repos.logs.update(id, logFields(b)); }
 export async function removeLog(id: string) { if (!(await repos.logs.remove(id))) throw new NotFound('Daily log not found.'); }

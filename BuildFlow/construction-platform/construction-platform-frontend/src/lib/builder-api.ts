@@ -48,6 +48,18 @@ export const portalAccess = {
   create: (pid: string, b: any) => fetchAPI(`/projects/${pid}/portal-access`, json('POST', b)),
   revoke: (id: string) => fetchAPI(`/portal-access/${id}`, json('DELETE')),
 };
+export const punch = {
+  list: (pid: string) => fetchAPI(`/projects/${pid}/punch`),
+  setStatus: (id: string, status: 'open' | 'resolved') => fetchAPI(`/punch/${id}/status`, json('POST', { status })),
+  remove: (id: string) => fetchAPI(`/punch/${id}`, json('DELETE')),
+};
+export const crew = {
+  list: () => fetchAPI('/crew'),
+  create: (b: any) => fetchAPI('/crew', json('POST', b)),
+  update: (id: string, b: any) => fetchAPI(`/crew/${id}`, json('PATCH', b)),
+  reset: (id: string) => fetchAPI(`/crew/${id}/reset`, json('POST')),
+  remove: (id: string) => fetchAPI(`/crew/${id}`, json('DELETE')),
+};
 export const portal = {
   get: (token: string) => fetchAPI(`/portal/${encodeURIComponent(token)}`),
   decide: (token: string, coId: string, b: any) => fetchAPI(`/portal/${encodeURIComponent(token)}/change-orders/${coId}/decision`, json('POST', b)),
@@ -57,3 +69,6 @@ export const portal = {
 export const money = (n: number | undefined | null) => (Number(n) || 0).toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 export const shortDate = (d?: string) => (d ? new Date(`${d.slice(0, 10)}T00:00:00Z`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' }) : '');
 export const today = () => new Date().toISOString().slice(0, 10);
+
+/** Uploaded photos are stored as /media/<id>.jpg; show them under whichever base this app is served from. */
+export const mediaUrl = (url: string) => (url.startsWith('/media/') ? `${import.meta.env.BASE_URL.replace(/\/$/, '')}${url}` : url);

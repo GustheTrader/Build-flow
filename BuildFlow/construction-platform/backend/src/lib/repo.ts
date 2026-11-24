@@ -69,3 +69,6 @@ export class Repo<T extends Stored> {
 
 export class NotFound extends Error { readonly status = 404; }
 export class BadRequest extends Error { readonly status = 400; }
+export class Unauthorized extends Error { readonly status = 401; }
+export class Forbidden extends Error { readonly status = 403; }
+export class TooMany extends Error { readonly status = 429; }

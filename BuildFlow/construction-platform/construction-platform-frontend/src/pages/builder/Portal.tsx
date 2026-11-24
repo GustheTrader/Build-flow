@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { money, portal, shortDate } from '../../lib/builder-api';
+import { mediaUrl, money, portal, shortDate } from '../../lib/builder-api';
 import { btn, btn2, Card, Empty, ErrorText, errMsg, input, Pill } from './ui';
 import { BRAND } from '../../brand';
 
@@ -60,7 +60,7 @@ export default function Portal() {
 
         <Card title="Updates from the site">
           {!d.dailyLogs.length ? <Empty>No updates shared yet.</Empty> : d.dailyLogs.map((l: any) => (
-            <div key={l.id} className="border-b border-gray-100 py-2 text-sm last:border-0"><div className="font-medium">{shortDate(l.date)}{l.weather?.conditions ? <span className="font-normal text-gray-500"> · {l.weather.conditions}</span> : null}</div><p className="whitespace-pre-wrap text-gray-700">{l.workPerformed}</p>{l.photos?.map((p: any) => <a key={p.url} href={p.url} target="_blank" rel="noreferrer" className="mr-2 text-xs text-blue-600">Photo</a>)}</div>
+            <div key={l.id} className="border-b border-gray-100 py-2 text-sm last:border-0"><div className="font-medium">{shortDate(l.date)}{l.weather?.conditions ? <span className="font-normal text-gray-500"> · {l.weather.conditions}</span> : null}</div><p className="whitespace-pre-wrap text-gray-700">{l.workPerformed}</p>{l.photos?.length > 0 && <div className="mt-2 flex flex-wrap gap-2">{l.photos.map((p: any) => <a key={p.url} href={mediaUrl(p.url)} target="_blank" rel="noreferrer"><img src={mediaUrl(p.url)} alt="" loading="lazy" className="h-24 w-24 rounded-sm border border-gray-200 object-cover" /></a>)}</div>}</div>
           ))}
         </Card>
 

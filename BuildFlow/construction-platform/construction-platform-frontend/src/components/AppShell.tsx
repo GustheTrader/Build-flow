@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, Calculator, CheckSquare, FileText, FolderKanban, LayoutDashboard, LogOut, Menu, Moon, Phone, ShoppingCart, Sun, Target, Users, X } from 'lucide-react';
+import { Activity, Calculator, CheckSquare, FileText, FolderKanban, LayoutDashboard, HardHat, LogOut, Menu, Moon, Phone, ShoppingCart, Sun, Target, Users, X } from 'lucide-react';
 import { auth } from '../lib/api';
 import { BRAND } from '../brand';
 
@@ -17,6 +17,7 @@ const NAV: { group: string; items: { to: string; label: string; icon: ReactNode 
     { to: '/invoices', label: 'Invoices', icon: <FileText size={16} /> },
     { to: '/purchase-orders', label: 'Purchase Orders', icon: <ShoppingCart size={16} /> },
     { to: '/vendors', label: 'Trade Partners', icon: <Users size={16} /> },
+    { to: '/crew', label: 'Crew & Field App', icon: <HardHat size={16} /> },
   ] },
   { group: 'AI Desk', items: [
     { to: '/hitl-approvals', label: 'Approvals', icon: <CheckSquare size={16} /> },

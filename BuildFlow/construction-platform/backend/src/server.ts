@@ -15,12 +15,14 @@ import aiAgentRoutes from './routes/ai-agents.routes';
 import financialRoutes from './routes/financial.routes';
 import builderRoutes from './routes/builder.routes';
 import portalRoutes from './routes/portal.routes';
+import fieldRoutes from './routes/field.routes';
+import { readPhoto } from './services/crew.service';
 
 const app = express();
 
 // Middleware
 // Images may come from https (the company logo, site photos linked in daily logs); everything else stays strict.
-app.use(helmet({ contentSecurityPolicy: { useDefaults: true, directives: { 'img-src': ["'self'", 'data:', 'https:'] } } }));
+app.use(helmet({ contentSecurityPolicy: { useDefaults: true, directives: { 'img-src': ["'self'", 'data:', 'blob:', 'https:'] } } }));
 app.use(cors({ origin: config.cors.origin, credentials: true }));
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
@@ -31,7 +33,9 @@ app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
     const duration = Date.now() - start;
-    console.log(`${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`);
+    // Invite and portal links carry a secret in the path: keep it out of the logs.
+    const shown = req.path.replace(/\/(join|portal)\/[^/]+/, '/$1/…');
+    console.log(`${req.method} ${shown} - ${res.statusCode} - ${duration}ms`);
   });
   next();
 });
@@ -53,6 +57,24 @@ app.use(`/api/${config.apiVersion}/ai-agents`, aiAgentRoutes);
 app.use(`/api/${config.apiVersion}/portal`, portalRoutes);
 app.use(`/api/${config.apiVersion}`, builderRoutes);
 app.use(`/api/${config.apiVersion}`, financialRoutes);
+
+// Field app: crew API, uploaded photos (addresses are unguessable), and the phone app itself.
+app.use('/field/api', fieldRoutes);
+app.get(['/media/:file', '/field/media/:file'], async (req, res) => {
+  const m = /^([a-f0-9]{32})\.jpg$/.exec(req.params.file);
+  const buf = m ? await readPhoto(m[1]) : null;
+  if (!buf) return res.status(404).json({ error: 'Not found' });
+  res.set({ 'Content-Type': 'image/jpeg', 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, max-age=31536000, immutable' }).send(buf);
+});
+const fieldDist = process.env.FIELD_DIST;
+if (fieldDist && fs.existsSync(path.join(fieldDist, 'field.html'))) {
+  // Exactly /field (a string path would also match /field/ and redirect to itself forever).
+  app.get(/^\/field$/, (_req, res) => res.redirect('/field/'));
+  // The service worker must never be served stale, or an update could not reach phones.
+  app.get('/field/sw.js', (_req, res) => res.set('Cache-Control', 'no-cache').type('application/javascript').sendFile(path.join(fieldDist, 'sw.js')));
+  app.use('/field', express.static(fieldDist, { index: false, maxAge: '1h' }));
+  app.get(/^\/field\/(?!api\/).*/, (_req, res) => res.set('Cache-Control', 'no-cache').sendFile(path.join(fieldDist, 'field.html')));
+}
 
 // The web app, when FRONTEND_DIST points at a build (Bot HQ serves it under /buildflow/ and strips that prefix).
 const frontendDist = process.env.FRONTEND_DIST;

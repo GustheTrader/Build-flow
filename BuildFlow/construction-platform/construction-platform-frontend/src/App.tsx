@@ -14,6 +14,7 @@ import JobWorkspace from './pages/builder/JobWorkspace';
 import Leads from './pages/builder/Leads';
 import Estimates from './pages/builder/Estimates';
 import Portal from './pages/builder/Portal';
+import Crew from './pages/builder/Crew';
 
 // Served inside Bot HQ (under /buildflow/), Bot HQ has already signed the person in and adds the service key.
 const EMBEDDED = import.meta.env.VITE_EMBEDDED === '1';
@@ -57,6 +58,7 @@ function App() {
             <Route path="/projects/:id" element={<JobWorkspace />} />
             <Route path="/leads" element={<Leads />} />
             <Route path="/estimates" element={<Estimates />} />
+            <Route path="/crew" element={<Crew />} />
             <Route path="/hitl-approvals" element={<HITLApprovals />} />
             <Route path="/ai-agents" element={<AIAgentsMonitor />} />
             <Route path="/invoices" element={<Invoices />} />
