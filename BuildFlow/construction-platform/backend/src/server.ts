@@ -68,7 +68,8 @@ app.get(['/media/:file', '/field/media/:file'], async (req, res) => {
 });
 const fieldDist = process.env.FIELD_DIST;
 if (fieldDist && fs.existsSync(path.join(fieldDist, 'field.html'))) {
-  app.get('/field', (_req, res) => res.redirect('/field/'));
+  // Exactly /field (a string path would also match /field/ and redirect to itself forever).
+  app.get(/^\/field$/, (_req, res) => res.redirect('/field/'));
   // The service worker must never be served stale, or an update could not reach phones.
   app.get('/field/sw.js', (_req, res) => res.set('Cache-Control', 'no-cache').type('application/javascript').sendFile(path.join(fieldDist, 'sw.js')));
   app.use('/field', express.static(fieldDist, { index: false, maxAge: '1h' }));

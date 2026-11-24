@@ -162,7 +162,8 @@ const jobCard = (p: any) => ({ id: p.id, number: p.number, name: p.name, status:
 
 const scheduleView = (i: any) => ({ id: i.id, title: i.title, startDate: i.startDate, endDate: i.endDate, status: i.status, progress: i.progress, assignees: i.assignees, notes: i.notes, updatedBy: i.updatedBy });
 
-export async function fieldJobs(c: CrewMember) {
+export async function fieldJobs(c: CrewMember, day?: string) {
+  const t = day && /^\d{4}-\d{2}-\d{2}$/.test(day) ? day : today();
   const out = [];
   for (const id of c.jobIds) {
     const p = await projects.getProject(id);
@@ -172,8 +173,8 @@ export async function fieldJobs(c: CrewMember) {
     out.push({
       ...jobCard(p),
       progress: items.length ? Math.round(items.reduce((s, i) => s + (i.status === 'complete' ? 100 : i.progress), 0) / items.length) : 0,
-      today: open.filter((i) => i.startDate <= today() && i.endDate >= today()).length,
-      late: open.filter((i) => i.endDate < today()).length,
+      today: open.filter((i) => i.startDate <= t && i.endDate >= t).length,
+      late: open.filter((i) => i.endDate < t).length,
     });
   }
   return out;

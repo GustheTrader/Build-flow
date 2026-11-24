@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { dailyLogs, shortDate, today } from '../../lib/builder-api';
+import { dailyLogs, mediaUrl, shortDate, today } from '../../lib/builder-api';
 import { btn, Card, Empty, ErrorText, errMsg, Field, input } from './ui';
 
 /** Daily logs: what happened on site each day (weather, crew, work, delays, safety, photos). */
@@ -37,7 +37,7 @@ export default function DailyLogsTab({ projectId }: { projectId: string }) {
           <Field label="Crew on site (name (company) hours, …)" wide><input className={input} value={f.crew} onChange={(e) => setF({ ...f, crew: e.target.value })} placeholder="Ana 8, Ben (Ace Electric) 6" /></Field>
           <Field label="Delays"><input className={input} value={f.delays} onChange={(e) => setF({ ...f, delays: e.target.value })} /></Field>
           <Field label="Safety notes"><input className={input} value={f.safety} onChange={(e) => setF({ ...f, safety: e.target.value })} /></Field>
-          <Field label="Photo link"><input className={input} value={f.photoUrl} onChange={(e) => setF({ ...f, photoUrl: e.target.value })} placeholder="https://…" /></Field>
+          <Field label="Photo link (crew add photos from the field app)"><input className={input} value={f.photoUrl} onChange={(e) => setF({ ...f, photoUrl: e.target.value })} placeholder="https://…" /></Field>
           <Field label="Options">
             <span className="flex flex-col gap-1 font-normal text-gray-700">
               <label className="flex items-center gap-2"><input type="checkbox" checked={f.weatherDelay} onChange={(e) => setF({ ...f, weatherDelay: e.target.checked })} />Weather delay</label>
@@ -63,7 +63,7 @@ export default function DailyLogsTab({ projectId }: { projectId: string }) {
                 {l.crew?.length > 0 && <p className="mt-1 text-xs text-gray-500">Crew: {l.crew.map((c: any) => `${c.name}${c.company ? ` (${c.company})` : ''}${c.hours ? ` ${c.hours}h` : ''}`).join(', ')}</p>}
                 {l.delays && <p className="mt-1 text-xs text-amber-700">Delays: {l.delays}</p>}
                 {l.safety && <p className="mt-1 text-xs text-gray-500">Safety: {l.safety}</p>}
-                {l.photos?.map((p: any) => <a key={p.url} href={p.url} target="_blank" rel="noreferrer" className="mr-2 text-xs text-blue-600 hover:underline">Photo</a>)}
+                {l.photos?.length > 0 && <div className="mt-2 flex flex-wrap gap-2">{l.photos.map((p: any) => <a key={p.url} href={mediaUrl(p.url)} target="_blank" rel="noreferrer"><img src={mediaUrl(p.url)} alt="" loading="lazy" className="h-20 w-20 rounded-sm border border-gray-200 object-cover" /></a>)}</div>}
               </li>
             ))}
           </ul>

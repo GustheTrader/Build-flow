@@ -29,7 +29,7 @@ router.use((req: Authed, res, next) => {
 });
 
 router.get('/me', h(async (req) => ({ crew: C.publicCrew(req.crew!) })));
-router.get('/jobs', h(async (req) => ({ jobs: await C.fieldJobs(req.crew!) })));
+router.get('/jobs', h(async (req) => ({ jobs: await C.fieldJobs(req.crew!, typeof req.query.today === 'string' ? req.query.today : undefined) })));
 router.get('/jobs/:id', h(async (req) => C.fieldJob(req.crew!, req.params.id)));
 router.patch('/schedule/:id', h(async (req) => C.fieldUpdateItem(req.crew!, req.params.id, req.body ?? {})));
 router.post('/jobs/:id/daily-logs', h(async (req, res) => { res.status(201); return { log: await C.fieldCreateLog(req.crew!, req.params.id, req.body ?? {}) }; }));

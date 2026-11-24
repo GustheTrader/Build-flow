@@ -8,10 +8,11 @@ import DailyLogsTab from './DailyLogsTab';
 import ChangeOrdersTab from './ChangeOrdersTab';
 import SelectionsTab from './SelectionsTab';
 import PortalTab from './PortalTab';
+import PunchTab from './PunchTab';
 
 /** A job: the existing overview plus schedule, daily logs, change orders, selections and client portal tabs. */
 const TABS = [
-  ['overview', 'Overview'], ['schedule', 'Schedule'], ['logs', 'Daily logs'], ['change-orders', 'Change orders'], ['selections', 'Selections'], ['portal', 'Client portal'],
+  ['overview', 'Overview'], ['schedule', 'Schedule'], ['logs', 'Daily logs'], ['punch', 'Punch list'], ['change-orders', 'Change orders'], ['selections', 'Selections'], ['portal', 'Client portal'],
 ] as const;
 
 export default function JobWorkspace() {
@@ -47,6 +48,7 @@ export default function JobWorkspace() {
       {tab === 'overview' && <ProjectDetail />}
       {tab === 'schedule' && <ScheduleTab projectId={id} />}
       {tab === 'logs' && <DailyLogsTab projectId={id} />}
+      {tab === 'punch' && <PunchTab projectId={id} />}
       {tab === 'change-orders' && <ChangeOrdersTab projectId={id} />}
       {tab === 'selections' && <SelectionsTab projectId={id} />}
       {tab === 'portal' && <PortalTab projectId={id} />}
