@@ -1,6 +1,7 @@
 import { Router, Response, NextFunction } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import * as B from '../services/builder.service';
+import * as C from '../services/crew.service';
 
 /**
  * Builder API (signed in): schedule, daily logs, change orders, selections, leads, estimates, client portal links.
@@ -8,7 +9,7 @@ import * as B from '../services/builder.service';
  */
 const router = Router();
 // Only this router's own paths require sign-in, so unknown /api/v1 paths still fall through to a 404.
-router.use(/^\/(projects\/[^/]+\/(schedule|daily-logs|change-orders|contract|selections|portal-access)|schedule|daily-logs|change-orders|selections|leads|estimates|portal-access|jobs)(\/|$)/, authenticate);
+router.use(/^\/(projects\/[^/]+\/(schedule|daily-logs|change-orders|contract|selections|portal-access|punch)|schedule|daily-logs|change-orders|selections|leads|estimates|portal-access|jobs|crew|punch)(\/|$)/, authenticate);
 
 type H = (req: AuthRequest, res: Response) => Promise<unknown>;
 const h = (fn: H) => (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -68,5 +69,17 @@ router.post('/estimates/:id/status', h(async (req) => ({ estimate: await B.setEs
 router.get('/projects/:pid/portal-access', h(async (req) => ({ access: await B.listAccess(req.params.pid) })));
 router.post('/projects/:pid/portal-access', h(async (req, res) => { res.status(201); return B.createAccess(req.params.pid, req.body ?? {}); }));
 router.delete('/portal-access/:id', h(async (req) => { await B.revokeAccess(req.params.id); return { ok: true }; }));
+
+// punch list (the field raises items; the office sees and closes them)
+router.get('/projects/:pid/punch', h(async (req) => ({ items: await C.listPunch(req.params.pid) })));
+router.post('/punch/:id/status', h(async (req) => ({ item: await C.setPunchStatus(req.params.id, req.body?.status, who(req)) })));
+router.delete('/punch/:id', h(async (req) => { await C.removePunch(req.params.id); return { ok: true }; }));
+
+// crew accounts (an invite link is shown once; only its hash is stored)
+router.get('/crew', h(async () => ({ crew: await C.listCrew() })));
+router.post('/crew', h(async (req, res) => { res.status(201); return C.createCrew(req.body ?? {}); }));
+router.patch('/crew/:id', h(async (req) => ({ crew: await C.updateCrew(req.params.id, req.body ?? {}) })));
+router.post('/crew/:id/reset', h(async (req) => C.resetCrew(req.params.id)));
+router.delete('/crew/:id', h(async (req) => { await C.removeCrew(req.params.id); return { ok: true }; }));
 
 export default router;

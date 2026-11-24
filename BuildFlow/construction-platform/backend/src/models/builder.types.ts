@@ -15,6 +15,7 @@ export interface ScheduleItem {
   status: ScheduleStatus; progress: number;    // 0-100
   visibleToClient: boolean;
   notes?: string;
+  updatedBy?: string;                          // who last changed status/progress in the field
   createdAt: string; updatedAt: string;
 }
 
@@ -94,5 +95,30 @@ export interface ClientAccess {
   name: string; email?: string;
   tokenHash: string;                            // sha256 of the portal link token; the token itself is never stored
   revoked: boolean; lastSeenAt?: string;
+  createdAt: string; updatedAt: string;
+}
+
+// ---------- crew (field team) ----------
+export type CrewRole = 'crew' | 'foreman';
+export interface CrewMember {
+  id: string;
+  name: string; email: string; phone?: string;
+  role: CrewRole;                               // a foreman can also resolve punch items in the field
+  jobIds: string[];                             // the only jobs this person can see
+  active: boolean;
+  passwordHash?: string;                        // set when they accept their invite
+  inviteHash?: string; inviteExpiresAt?: string; // sha256 of the invite token; the token itself is never stored
+  tokenVersion: number;                         // bumped on reset/new password: older sign-ins stop working
+  lastSeenAt?: string;
+  createdAt: string; updatedAt: string;
+}
+
+// ---------- punch list ----------
+export interface PunchItem {
+  id: string; projectId: string;
+  title: string; detail?: string; location?: string;
+  photos: { url: string }[];
+  status: 'open' | 'resolved';
+  createdBy: string; resolvedBy?: string; resolvedAt?: string;
   createdAt: string; updatedAt: string;
 }
